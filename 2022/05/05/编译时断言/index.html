@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>编译时断言 | Joho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这其实是使用C语言的宏来实现的非常有“创意”的一个功能。有些时候，特别是在进行内核编程时，在编译时就能够进行条件检查的断言，而不是在运行时进行，这非常有用。不幸的是，C99标准还不支持任何编译时的断言。 但是，我们可以利用预处理来生成代码，这些代码只有在某些条件成立时才会通过编译（最好是那种不做实际功能的命令）。有各种各样不同的方式都可以做到这一点，通常都是建立一个大小为负的数组或结构体。最常用的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译时断言">
+<meta property="og:url" content="http://example.com/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/index.html">
+<meta property="og:site_name" content="Joho">
+<meta property="og:description" content="这其实是使用C语言的宏来实现的非常有“创意”的一个功能。有些时候，特别是在进行内核编程时，在编译时就能够进行条件检查的断言，而不是在运行时进行，这非常有用。不幸的是，C99标准还不支持任何编译时的断言。 但是，我们可以利用预处理来生成代码，这些代码只有在某些条件成立时才会通过编译（最好是那种不做实际功能的命令）。有各种各样不同的方式都可以做到这一点，通常都是建立一个大小为负的数组或结构体。最常用的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-05T13:42:15.000Z">
+<meta property="article:modified_time" content="2022-05-05T13:45:12.086Z">
+<meta property="article:author" content="By Joho">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Joho" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Joho</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-编译时断言" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" class="article-date">
+  <time datetime="2022-05-05T13:42:15.000Z" itemprop="datePublished">2022-05-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      编译时断言
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这其实是使用C语言的宏来实现的非常有“创意”的一个功能。有些时候，特别是在进行内核编程时，在编译时就能够进行条件检查的断言，而不是在运行时进行，这非常有用。不幸的是，C99标准还不支持任何编译时的断言。</p>
+<p>但是，我们可以利用预处理来生成代码，这些代码只有在某些条件成立时才会通过编译（最好是那种不做实际功能的命令）。有各种各样不同的方式都可以做到这一点，通常都是建立一个大小为负的数组或结构体。最常用的方式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/* Force a compilation error if condition is false, but also produce a result</span><br><span class="line">* (of value 0 and type size_t), so it can be used e.g. in a structure</span><br><span class="line">* initializer (or wherever else comma expressions aren&#x27;t permitted). */</span><br><span class="line">/* Linux calls these BUILD_BUG_ON_ZERO/_NULL, which is rather misleading. </span><br><span class="line">*/</span><br><span class="line">#define STATIC_ZERO_ASSERT(condition) (sizeof(struct &#123; int:-!(condition); &#125;) )</span><br><span class="line">#define STATIC_NULL_ASSERT(condition) ((void *)STATIC_ZERO_ASSERT(condition) )</span><br><span class="line">/* Force a compilation error if condition is false */</span><br><span class="line">#define STATIC_ASSERT(condition) ((void)STATIC_ZERO_ASSERT(condition))</span><br></pre></td></tr></table></figure>
+
+<p>如果(condition)计算结果为一个非零值（即C中的真值），即! (condition)为零值，那么代码将能顺利地编译，并生成一个大小为零的结构体。如果(condition)结果为0（在C真为假），那么在试图生成一个负大小的结构体时，就会产生编译错误。</p>
+<p>它的使用非常简单，如果任何某假设条件能够静态地检查，那么它就可以在编译时断言。例如，在上面提到的标志列表中，标志集合的类型为uint32_t，所以，我们可以做以下断言：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STATIC_ASSERT(Total &lt;= 32)</span><br></pre></td></tr></table></figure>
+
+<p>它扩展为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int:-!(Total &lt;= 32) &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>现在，假设Total&lt;=32。那么-!(Total &lt;= 32)等于0，所以这行代码相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int: 0 &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这是一个合法的C代码。现在假设标志不止32个，那么-!(Total &lt;= 32)等于-1，所以这时代码就相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int: -1 &#125; )</span><br></pre></td></tr></table></figure>
+
+<p>因为位宽为负，所以可以确定，如果标志的数量超过了我们指派的空间，那么编译将会失败。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" data-id="cl2t29lhc0002xwc83y0ld4vl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C语言__attribute__的使用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/">编译时断言</a>
+          </li>
+        
+          <li>
+            <a href="/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/">C语言__attribute__的使用</a>
+          </li>
+        
+          <li>
+            <a href="/2022/05/01/%E5%A6%82%E4%BD%95%E7%94%A8AD%E4%B8%80%E9%94%AE%E6%89%93%E6%9D%BF0%E5%85%83%E8%96%85%E5%8D%8E%E7%A7%8B4%E5%B1%82%E6%9D%BF%E7%BE%8A%E6%AF%9B%EF%BC%9F/">如何用AD一键打板0元薅华秋4层板羊毛？</a>
+          </li>
+        
+          <li>
+            <a href="/2022/05/01/hello-world/">启航</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2022 By Joho<br>
+      <!-- Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> -->
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

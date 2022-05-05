@@ -64,6 +64,60 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-编译时断言" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" class="article-date">
+  <time datetime="2022-05-05T13:42:15.000Z" itemprop="datePublished">2022-05-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/">编译时断言</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这其实是使用C语言的宏来实现的非常有“创意”的一个功能。有些时候，特别是在进行内核编程时，在编译时就能够进行条件检查的断言，而不是在运行时进行，这非常有用。不幸的是，C99标准还不支持任何编译时的断言。</p>
+<p>但是，我们可以利用预处理来生成代码，这些代码只有在某些条件成立时才会通过编译（最好是那种不做实际功能的命令）。有各种各样不同的方式都可以做到这一点，通常都是建立一个大小为负的数组或结构体。最常用的方式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/* Force a compilation error if condition is false, but also produce a result</span><br><span class="line">* (of value 0 and type size_t), so it can be used e.g. in a structure</span><br><span class="line">* initializer (or wherever else comma expressions aren&#x27;t permitted). */</span><br><span class="line">/* Linux calls these BUILD_BUG_ON_ZERO/_NULL, which is rather misleading. </span><br><span class="line">*/</span><br><span class="line">#define STATIC_ZERO_ASSERT(condition) (sizeof(struct &#123; int:-!(condition); &#125;) )</span><br><span class="line">#define STATIC_NULL_ASSERT(condition) ((void *)STATIC_ZERO_ASSERT(condition) )</span><br><span class="line">/* Force a compilation error if condition is false */</span><br><span class="line">#define STATIC_ASSERT(condition) ((void)STATIC_ZERO_ASSERT(condition))</span><br></pre></td></tr></table></figure>
+
+<p>如果(condition)计算结果为一个非零值（即C中的真值），即! (condition)为零值，那么代码将能顺利地编译，并生成一个大小为零的结构体。如果(condition)结果为0（在C真为假），那么在试图生成一个负大小的结构体时，就会产生编译错误。</p>
+<p>它的使用非常简单，如果任何某假设条件能够静态地检查，那么它就可以在编译时断言。例如，在上面提到的标志列表中，标志集合的类型为uint32_t，所以，我们可以做以下断言：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STATIC_ASSERT(Total &lt;= 32)</span><br></pre></td></tr></table></figure>
+
+<p>它扩展为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int:-!(Total &lt;= 32) &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>现在，假设Total&lt;=32。那么-!(Total &lt;= 32)等于0，所以这行代码相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int: 0 &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这是一个合法的C代码。现在假设标志不止32个，那么-!(Total &lt;= 32)等于-1，所以这时代码就相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(void)sizeof(struct &#123; int: -1 &#125; )</span><br></pre></td></tr></table></figure>
+
+<p>因为位宽为负，所以可以确定，如果标志的数量超过了我们指派的空间，那么编译将会失败。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" data-id="cl2t29lhc0002xwc83y0ld4vl" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-C语言-attribute-的使用" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" class="article-date">
@@ -146,7 +200,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cl2n1hpx600001kc8a0ye5l8o" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cl2t29lh80000xwc8cotcc8pv" class="article-share-link">Share</a>
       
       
     </footer>
@@ -260,12 +314,12 @@
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3NTU3NTgwMQ==&mid=2247484167&idx=1&sn=c532b5a35f917665f10b65ae357a81b3&chksm=cf3e2391f849aa87bf020569b44bc2300462ac79fdc0029c52827afd6188f134a5af13373ea4&scene=21#wechat_redirect"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/6rWSmJHWRk183k0VpQLOGkKpOfML3xtEUhBGaKW31n3x9zkoZiaEe9ibicR9aGSkKvCgBg8BDED3t5icIt5sBt75dg/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></a></p>
 <h2 id="06-注意事项"><a href="#06-注意事项" class="headerlink" title="06  注意事项"></a>06  <strong>注意事项</strong></h2><p>★ 最终订单是否满足优惠条件，以板厂审核为准。</p>
 <p>★ 总结一下关键操作：<strong>AD中询价创建订单 -&gt; DigiPCBA网站发送订单 -&gt; 等待审核 -&gt; 支付</strong>。</p>
-<p>★ 在使用中如有任何问题，您可发送邮件至<a href="mailto:&#x73;&#x75;&#x70;&#112;&#x6f;&#x72;&#116;&#64;&#109;&#x61;&#105;&#108;&#x2e;&#x64;&#x69;&#103;&#x69;&#112;&#x63;&#x62;&#x61;&#x2e;&#99;&#x6f;&#109;">&#x73;&#x75;&#x70;&#112;&#x6f;&#x72;&#116;&#64;&#109;&#x61;&#105;&#108;&#x2e;&#x64;&#x69;&#103;&#x69;&#112;&#x63;&#x62;&#x61;&#x2e;&#99;&#x6f;&#109;</a>咨询。</p>
+<p>★ 在使用中如有任何问题，您可发送邮件至<a href="mailto:&#115;&#117;&#x70;&#x70;&#111;&#x72;&#116;&#x40;&#x6d;&#97;&#105;&#108;&#x2e;&#100;&#105;&#x67;&#x69;&#112;&#x63;&#x62;&#97;&#46;&#x63;&#111;&#x6d;">&#115;&#117;&#x70;&#x70;&#111;&#x72;&#116;&#x40;&#x6d;&#97;&#105;&#108;&#x2e;&#100;&#105;&#x67;&#x69;&#112;&#x63;&#x62;&#97;&#46;&#x63;&#111;&#x6d;</a>咨询。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/%E5%A6%82%E4%BD%95%E7%94%A8AD%E4%B8%80%E9%94%AE%E6%89%93%E6%9D%BF0%E5%85%83%E8%96%85%E5%8D%8E%E7%A7%8B4%E5%B1%82%E6%9D%BF%E7%BE%8A%E6%AF%9B%EF%BC%9F/" data-id="cl2n1hpxa00021kc87etwend8" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/%E5%A6%82%E4%BD%95%E7%94%A8AD%E4%B8%80%E9%94%AE%E6%89%93%E6%9D%BF0%E5%85%83%E8%96%85%E5%8D%8E%E7%A7%8B4%E5%B1%82%E6%9D%BF%E7%BE%8A%E6%AF%9B%EF%BC%9F/" data-id="cl2t29lhc0003xwc8ho8qcfd4" class="article-share-link">Share</a>
       
       
     </footer>
@@ -301,7 +355,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/hello-world/" data-id="cl2n1hpx900011kc890ip2jey" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/hello-world/" data-id="cl2t29lhb0001xwc81tdn3c67" class="article-share-link">Share</a>
       
       
     </footer>
@@ -340,6 +394,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/">编译时断言</a>
+          </li>
         
           <li>
             <a href="/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/">C语言__attribute__的使用</a>
