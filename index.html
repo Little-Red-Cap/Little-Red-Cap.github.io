@@ -64,6 +64,57 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-结构体初始化的几种方法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2022/05/17/%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/" class="article-date">
+  <time datetime="2022-05-17T15:39:34.000Z" itemprop="datePublished">2022-05-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/05/17/%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/">结构体初始化的几种方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>﻿</p>
+<h3 id="1-先定义再初始化"><a href="#1-先定义再初始化" class="headerlink" title="1.先定义再初始化"></a>1.先定义再初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">obj_t</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">obj_t</span> obj;</span><br><span class="line">obj.name = <span class="string">&quot;ABC&quot;</span>;</span><br><span class="line">obj.val = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-定义的时候初始化"><a href="#2-定义的时候初始化" class="headerlink" title="2.定义的时候初始化"></a>2.定义的时候初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 写法1 按照顺序赋值</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125; obj_2 = &#123;<span class="string">&quot;ABD&quot;</span>, <span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写法2 单独对成员赋值</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125; obj_3 = &#123;.name = <span class="string">&quot;ABD&quot;</span>, .val = <span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写法3</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">obj_t</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">obj_t</span> obj_1 = &#123;.name = <span class="string">&quot;name&quot;</span>, .val = <span class="number">0</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-结构体嵌套"><a href="#3-结构体嵌套" class="headerlink" title="3.结构体嵌套"></a>3.结构体嵌套</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 写法1</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">        <span class="type">int</span> a;</span><br><span class="line">    &#125;obj;</span><br><span class="line">&#125; obj_4 = &#123;<span class="string">&quot;ABD&quot;</span>, <span class="number">0</span>, <span class="number">666</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写法2</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">        <span class="type">int</span> a;</span><br><span class="line">    &#125;obj;</span><br><span class="line">&#125; obj_5 = &#123;.name = <span class="string">&quot;ABD&quot;</span>, .val = <span class="number">0</span>, &#123;.a = <span class="number">666</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-结构体数组"><a href="#4-结构体数组" class="headerlink" title="4.结构体数组"></a>4.结构体数组</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125; obj_6[<span class="number">2</span>] = &#123;[<span class="number">0</span>] = &#123;<span class="string">&quot;name 0&quot;</span>, <span class="number">0</span>&#125;, [<span class="number">1</span>]= &#123;<span class="string">&quot;name 1&quot;</span>, <span class="number">1</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-结构体嵌套数组"><a href="#5-结构体嵌套数组" class="headerlink" title="5.结构体嵌套数组"></a>5.结构体嵌套数组</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">        <span class="type">int</span> a;</span><br><span class="line">    &#125;obj;</span><br><span class="line">&#125; obj_7[<span class="number">2</span>] = &#123;[<span class="number">0</span>] = &#123;<span class="string">&quot;name 0&quot;</span>, <span class="number">0</span>, <span class="number">0</span>&#125;, [<span class="number">1</span>] = &#123;<span class="string">&quot;name 1&quot;</span>&#125;&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">obj_t</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">int</span> a;</span><br><span class="line">    &#125; obj;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">obj_t</span> obj_8[<span class="number">2</span>] = &#123;</span><br><span class="line">        [<span class="number">0</span>] = &#123;<span class="string">&quot;name 0&quot;</span>, <span class="number">0</span>, <span class="number">0</span>&#125;,</span><br><span class="line">        [<span class="number">1</span>] = &#123;<span class="string">&quot;name 1&quot;</span>, <span class="number">0</span>, <span class="number">0</span>&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-使用类型别名"><a href="#6-使用类型别名" class="headerlink" title="6.使用类型别名"></a>6.使用类型别名</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">&#125; <span class="type">obj_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">obj_t</span> obj_9;</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-成员函数"><a href="#7-成员函数" class="headerlink" title="7.成员函数"></a>7.成员函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">fn</span><span class="params">()</span> &#123;</span><br><span class="line">    ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;</span><br><span class="line">    <span class="type">int</span> val;</span><br><span class="line">    <span class="type">void</span> (*function)();</span><br><span class="line">&#125; <span class="type">obj_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">obj_t</span> obj_10 = &#123;.function = fn&#125;;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/05/17/%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/" data-id="cl3abn8sw0003ogc8eynidklo" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-编译时断言" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" class="article-date">
@@ -108,7 +159,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" data-id="cl35nkksz0001icc85p069raw" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/" data-id="cl3abn8sw0004ogc8945v82xj" class="article-share-link">Share</a>
       
       
     </footer>
@@ -200,7 +251,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cl35nkkt00002icc8hxwc2obg" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/C%E8%AF%AD%E8%A8%80-attribute-%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="cl3abn8ss0000ogc87kk49udc" class="article-share-link">Share</a>
       
       
     </footer>
@@ -314,12 +365,12 @@
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3NTU3NTgwMQ==&mid=2247484167&idx=1&sn=c532b5a35f917665f10b65ae357a81b3&chksm=cf3e2391f849aa87bf020569b44bc2300462ac79fdc0029c52827afd6188f134a5af13373ea4&scene=21#wechat_redirect"><img src="https://mmbiz.qpic.cn/mmbiz_jpg/6rWSmJHWRk183k0VpQLOGkKpOfML3xtEUhBGaKW31n3x9zkoZiaEe9ibicR9aGSkKvCgBg8BDED3t5icIt5sBt75dg/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></a></p>
 <h2 id="06-注意事项"><a href="#06-注意事项" class="headerlink" title="06  注意事项"></a>06  <strong>注意事项</strong></h2><p>★ 最终订单是否满足优惠条件，以板厂审核为准。</p>
 <p>★ 总结一下关键操作：<strong>AD中询价创建订单 -&gt; DigiPCBA网站发送订单 -&gt; 等待审核 -&gt; 支付</strong>。</p>
-<p>★ 在使用中如有任何问题，您可发送邮件至<a href="mailto:&#x73;&#x75;&#x70;&#112;&#x6f;&#114;&#116;&#64;&#x6d;&#x61;&#x69;&#108;&#46;&#100;&#x69;&#103;&#x69;&#112;&#99;&#x62;&#97;&#x2e;&#99;&#111;&#x6d;">&#x73;&#x75;&#x70;&#112;&#x6f;&#114;&#116;&#64;&#x6d;&#x61;&#x69;&#108;&#46;&#100;&#x69;&#103;&#x69;&#112;&#99;&#x62;&#97;&#x2e;&#99;&#111;&#x6d;</a>咨询。</p>
+<p>★ 在使用中如有任何问题，您可发送邮件至<a href="mailto:&#x73;&#117;&#112;&#x70;&#111;&#x72;&#116;&#x40;&#x6d;&#97;&#105;&#108;&#46;&#100;&#105;&#103;&#105;&#112;&#x63;&#98;&#x61;&#46;&#99;&#x6f;&#109;">&#x73;&#117;&#112;&#x70;&#111;&#x72;&#116;&#x40;&#x6d;&#97;&#105;&#108;&#46;&#100;&#105;&#103;&#105;&#112;&#x63;&#98;&#x61;&#46;&#99;&#x6f;&#109;</a>咨询。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/%E5%A6%82%E4%BD%95%E7%94%A8AD%E4%B8%80%E9%94%AE%E6%89%93%E6%9D%BF0%E5%85%83%E8%96%85%E5%8D%8E%E7%A7%8B4%E5%B1%82%E6%9D%BF%E7%BE%8A%E6%AF%9B%EF%BC%9F/" data-id="cl35nkkt10003icc8f28z7gsd" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/%E5%A6%82%E4%BD%95%E7%94%A8AD%E4%B8%80%E9%94%AE%E6%89%93%E6%9D%BF0%E5%85%83%E8%96%85%E5%8D%8E%E7%A7%8B4%E5%B1%82%E6%9D%BF%E7%BE%8A%E6%AF%9B%EF%BC%9F/" data-id="cl3abn8sv0002ogc8b5ec0ar3" class="article-share-link">Share</a>
       
       
     </footer>
@@ -355,7 +406,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/05/01/hello-world/" data-id="cl35nkksx0000icc8ei16en95" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/05/01/hello-world/" data-id="cl3abn8su0001ogc83yj67z6k" class="article-share-link">Share</a>
       
       
     </footer>
@@ -394,6 +445,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2022/05/17/%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/">结构体初始化的几种方法</a>
+          </li>
         
           <li>
             <a href="/2022/05/05/%E7%BC%96%E8%AF%91%E6%97%B6%E6%96%AD%E8%A8%80/">编译时断言</a>
